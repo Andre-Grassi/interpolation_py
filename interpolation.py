@@ -1,6 +1,8 @@
 # interpolation.py
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
+import argparse
 
 
 def read_points():
@@ -68,7 +70,7 @@ class Graph:
         """
         result = 0
         for i, coef in enumerate(coefficients):
-            result += coef * (x_value ** i)
+            result += coef * (x_value**i)
         return result
 
     @staticmethod
@@ -130,17 +132,80 @@ class Graph:
         plt.show()
         print(f"\nGráfico salvo como 'interpolation_plot.png'")
 
+    @staticmethod
+    def lagrange_polynomial(x_points, y_points, x_value):
+        """
+        Avalia o polinômio de Lagrange nos pontos x_value dados os pontos (x_points, y_points)
+        """
+        n = len(x_points)
+        result = 0
+        for i in range(n):
+            term = y_points[i]
+            for j in range(i):
+                term *= (x_value - x_points[j]) / (x_points[i] - x_points[j])
+            for j in range(i + 1, n):
+                term *= (x_value - x_points[j]) / (x_points[i] - x_points[j])
+            result += term
+        return result
+
+    @staticmethod
+    def plot_lagrange(x_points, y_points):
+        """
+        Plota o gráfico do polinômio de Lagrange
+        """
+        x_min = min(x_points) - 1
+        x_max = max(x_points) + 1
+        x_plot = np.linspace(x_min, x_max, 1000)
+        y_plot = [Graph.lagrange_polynomial(x_points, y_points, x) for x in x_plot]
+
+        plt.figure(figsize=(10, 6))
+        plt.plot(x_plot, y_plot, "g-", linewidth=2, label="Lagrange Interpolação")
+        plt.scatter(
+            x_points, y_points, color="red", s=100, zorder=5, label="Pontos Originais"
+        )
+        plt.xlabel("x")
+        plt.ylabel("y")
+        plt.title("Interpolação Polinomial de Lagrange")
+        plt.grid(True, alpha=0.3)
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig("lagrange_plot.png", dpi=300, bbox_inches="tight")
+        plt.show()
+
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Interpolation")
+    parser.add_argument(
+        "--polinomial", action="store_true", help="Use polynomial interpolation"
+    )
+    parser.add_argument(
+        "--lagrange", action="store_true", help="Use Lagrange interpolation"
+    )
+
+    args = parser.parse_args()
+
+    # Check if no args provided
+    if not (args.polinomial or args.lagrange):
+        print("No arguments provided. Please provide --polinomial or --lagrange.")
+        sys.exit(1)
+
     x, y, n = read_points()
-    matrix, b = create_matrix(n, x, y)
-    print("\nMatrix: ")
-    print_matrix(matrix, b)
-    coefficients = gaussian_elimination(matrix, b)
-    print("\nCoefficients: ")
-    print(" ".join(f"{coef:f}" for coef in coefficients))
+    if args.polinomial:
+        matrix, b = create_matrix(n, x, y)
+        print("\nMatrix: ")
+        print_matrix(matrix, b)
+        coefficients = gaussian_elimination(matrix, b)
+        print("\nCoefficients: ")
+        print(" ".join(f"{coef:f}" for coef in coefficients))
+    elif args.lagrange:
+        coefficients = []
+        coefficients.extend(y)
+
     interpolated_function = []
     interpolated_function.extend(coefficients)
 
     # Plotar o gráfico da função interpolada
-    Graph.plot_interpolated_function(x, y, coefficients)
+    if args.polinomial:
+        Graph.plot_interpolated_function(x, y, coefficients)
+    elif args.lagrange:
+        Graph.plot_lagrange(x, y)
