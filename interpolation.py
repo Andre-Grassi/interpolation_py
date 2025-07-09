@@ -59,74 +59,76 @@ def print_matrix(matrix, b):
     print("b:", " ".join(f"{value:f}" for value in b))
 
 
-def evaluate_polynomial(coefficients, x_value):
-    """
-    Avalia o polinômio nos pontos x_value usando os coeficientes
-    P(x) = a0 + a1*x + a2*x^2 + ... + an*x^n
-    """
-    result = 0
-    for i, coef in enumerate(coefficients):
-        result += coef * (x_value ** i)
-    return result
+class Graph:
+    @staticmethod
+    def evaluate_polynomial(coefficients, x_value):
+        """
+        Avalia o polinômio nos pontos x_value usando os coeficientes
+        P(x) = a0 + a1*x + a2*x^2 + ... + an*x^n
+        """
+        result = 0
+        for i, coef in enumerate(coefficients):
+            result += coef * (x_value ** i)
+        return result
 
+    @staticmethod
+    def plot_interpolated_function(x_points, y_points, coefficients):
+        """
+        Plota o gráfico da função polinomial interpolada
+        """
+        # Criar um range de valores x para plotar a curva suave
+        x_min = min(x_points) - 1
+        x_max = max(x_points) + 1
+        x_plot = np.linspace(x_min, x_max, 1000)
 
-def plot_interpolated_function(x_points, y_points, coefficients):
-    """
-    Plota o gráfico da função polinomial interpolada
-    """
-    # Criar um range de valores x para plotar a curva suave
-    x_min = min(x_points) - 1
-    x_max = max(x_points) + 1
-    x_plot = np.linspace(x_min, x_max, 1000)
+        # Calcular os valores y correspondentes usando a função polinomial
+        y_plot = [Graph.evaluate_polynomial(coefficients, x) for x in x_plot]
 
-    # Calcular os valores y correspondentes usando a função polinomial
-    y_plot = [evaluate_polynomial(coefficients, x) for x in x_plot]
+        # Criar o gráfico
+        plt.figure(figsize=(10, 6))
 
-    # Criar o gráfico
-    plt.figure(figsize=(10, 6))
+        # Plotar a função interpolada
+        plt.plot(x_plot, y_plot, "b-", linewidth=2, label="Função Interpolada")
 
-    # Plotar a função interpolada
-    plt.plot(x_plot, y_plot, "b-", linewidth=2, label="Função Interpolada")
+        # Plotar os pontos originais
+        plt.scatter(
+            x_points, y_points, color="red", s=100, zorder=5, label="Pontos Originais"
+        )
 
-    # Plotar os pontos originais
-    plt.scatter(
-        x_points, y_points, color="red", s=100, zorder=5, label="Pontos Originais"
-    )
+        # Configurar o gráfico
+        plt.xlabel("x")
+        plt.ylabel("y")
+        plt.title("Interpolação Polinomial")
+        plt.grid(True, alpha=0.3)
+        plt.legend()
 
-    # Configurar o gráfico
-    plt.xlabel("x")
-    plt.ylabel("y")
-    plt.title("Interpolação Polinomial")
-    plt.grid(True, alpha=0.3)
-    plt.legend()
-
-    # Adicionar equação do polinômio no gráfico
-    equation = "P(x) = "
-    for i, coef in enumerate(coefficients):
-        if i == 0:
-            equation += f"{coef:.6f}"
-        else:
-            sign = "+" if coef >= 0 else "-"
-            coef_abs = abs(coef)
-            if i == 1:
-                equation += f" {sign} {coef_abs:.6f}x"
+        # Adicionar equação do polinômio no gráfico
+        equation = "P(x) = "
+        for i, coef in enumerate(coefficients):
+            if i == 0:
+                equation += f"{coef:.6f}"
             else:
-                equation += f" {sign} {coef_abs:.6f}x^{i}"
+                sign = "+" if coef >= 0 else "-"
+                coef_abs = abs(coef)
+                if i == 1:
+                    equation += f" {sign} {coef_abs:.6f}x"
+                else:
+                    equation += f" {sign} {coef_abs:.6f}x^{i}"
 
-    plt.text(
-        0.02,
-        0.98,
-        equation,
-        transform=plt.gca().transAxes,
-        fontsize=10,
-        verticalalignment="top",
-        bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.5),
-    )
+        plt.text(
+            0.02,
+            0.98,
+            equation,
+            transform=plt.gca().transAxes,
+            fontsize=10,
+            verticalalignment="top",
+            bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.5),
+        )
 
-    plt.tight_layout()
-    plt.savefig("interpolation_plot.png", dpi=300, bbox_inches="tight")
-    plt.show()
-    print(f"\nGráfico salvo como 'interpolation_plot.png'")
+        plt.tight_layout()
+        plt.savefig("interpolation_plot.png", dpi=300, bbox_inches="tight")
+        plt.show()
+        print(f"\nGráfico salvo como 'interpolation_plot.png'")
 
 
 if __name__ == "__main__":
@@ -141,4 +143,4 @@ if __name__ == "__main__":
     interpolated_function.extend(coefficients)
 
     # Plotar o gráfico da função interpolada
-    plot_interpolated_function(x, y, coefficients)
+    Graph.plot_interpolated_function(x, y, coefficients)
