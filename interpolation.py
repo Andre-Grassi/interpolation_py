@@ -172,6 +172,29 @@ class Graph:
         plt.savefig("lagrange_plot.png", dpi=300, bbox_inches="tight")
         plt.show()
 
+    @staticmethod
+    def plot_newton(x_points, y_points):
+        """
+        Plota o gráfico do polinômio de Newton
+        """
+        x_min = min(x_points) - 1
+        x_max = max(x_points) + 1
+        x_plot = np.linspace(x_min, x_max, 1000)
+        y_plot = [Graph.lagrange_polynomial(x_points, y_points, x) for x in x_plot]
+
+        plt.figure(figsize=(10, 6))
+        plt.plot(x_plot, y_plot, "m-", linewidth=2, label="Newton Interpolação")
+        plt.scatter(
+            x_points, y_points, color="red", s=100, zorder=5, label="Pontos Originais"
+        )
+        plt.xlabel("x")
+        plt.ylabel("y")
+        plt.title("Interpolação Polinomial de Newton")
+        plt.grid(True, alpha=0.3)
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig("newton_plot.png", dpi=300, bbox_inches="tight")
+        plt.show()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Interpolation")
